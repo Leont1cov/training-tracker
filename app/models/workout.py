@@ -3,9 +3,13 @@ from datetime import datetime
 from sqlalchemy import Identity, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from typing import TYPE_CHECKING
+
 from .base import Base
-from .user import User
-from .workout_exercise import WorkoutExercise
+
+if TYPE_CHECKING:
+    from .user import User
+    from .workout_exercise import WorkoutExercise
 
 class Workout(Base):
     __tablename__ = 'workouts'

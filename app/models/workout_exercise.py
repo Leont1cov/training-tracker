@@ -1,9 +1,13 @@
 from sqlalchemy import Identity, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from typing import TYPE_CHECKING
+
 from .base import Base
-from .workout import Workout
-from .exercise import Exercise
+
+if TYPE_CHECKING:
+    from .workout import Workout
+    from .exercise import Exercise
 
 class WorkoutExercise(Base):
     __tablename__ = 'workout_exercises'
