@@ -11,5 +11,3 @@ __all__ = [
     "Exercise",
     "WorkoutExercise",
 ]
-
-#TODO: Добавь relationship() и back_populates
