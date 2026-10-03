@@ -1,4 +1,3 @@
-#TODO: создать git для проекта
 from fastapi import FastAPI
 
 app = FastAPI()
