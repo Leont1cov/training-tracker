@@ -50,3 +50,5 @@ def del_workout(workout_id, db):
 
     db.delete(workout)
     db.commit()
+
+    return True

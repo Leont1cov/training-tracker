@@ -2,58 +2,49 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Exercise
 from app.schemas import ExerciseResponse, ExerciseCreate
+from app.services.exercises import post_exercise, get_exercises, get_exercise, patch_exercise, del_exercise
 
 router = APIRouter()
 
 #создаём упржанение
 @router.post("/exercises", response_model=ExerciseResponse)
 def create_exercise(exercise_data: ExerciseCreate, db: Session = Depends(get_db)):
-    exercise = Exercise(title=exercise_data.title)
+    result = post_exercise(exercise_data, db)
 
-    db.add(exercise)
-    db.commit()
-    db.refresh(exercise)
-
-    return exercise
+    return result
 
 #получаем упражнения
 @router.get("/exercises", response_model=list[ExerciseResponse])
 def read_exercises(db: Session = Depends(get_db)):
-    exercises = db.query(Exercise).all()
-    return exercises
+    return get_exercises(db)
 
 #читаем одно упржанение
 @router.get("/exercises/{exercise_id}", response_model=ExerciseResponse)
 def read_exercise(exercise_id: int, db: Session = Depends(get_db)):
-    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
-    if not exercise:
+    result = get_exercise(exercise_id, db)
+
+    if not result:
         raise HTTPException(status_code=404, detail="Exercise not found")
-    return exercise
+
+    return result
 
 #изменяем
 @router.patch("/exercises/{exercise_id}", response_model=ExerciseResponse)
 def update_exercise(exercise_data: ExerciseCreate, exercise_id: int, db: Session = Depends(get_db)):
-    exercise = db.get(Exercise, exercise_id)
-    data = exercise_data.model_dump(exclude_unset=True)
+    result = patch_exercise(exercise_data, exercise_id, db)
 
-    if not exercise:
+    if result is None:
         raise HTTPException(status_code=404, detail="Exercise not found")
 
-    for field, value in data.items():
-        setattr(exercise, field, value)
-
-    db.commit()
-    db.refresh(exercise)
-
-    return exercise
+    return result
 
 #удаляем
 @router.delete("/exercises/{exercise_id}")
 def delete_exercise(exercise_id: int, db: Session = Depends(get_db)):
-    exercise = db.get(Exercise, exercise_id)
-    if not exercise:
+    result = del_exercise(exercise_id, db)
+
+    if result is None:
         raise HTTPException(status_code=404, detail="Exercise not found")
-    db.delete(exercise)
-    db.commit()
+
+    return result
