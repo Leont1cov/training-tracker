@@ -4,64 +4,37 @@ from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import User, Workout
 from app.schemas import WorkoutResponse, WorkoutCreate
+from app.services.workouts import post_workout, get_workouts, get_workout, patch_workout, del_workout
 
 router = APIRouter()
 
-#создать тренировку
+#создаём тренировку
 @router.post("/workouts", response_model=WorkoutResponse)
 def create_workout(workout_data: WorkoutCreate, db: Session = Depends(get_db)):
-    user = db.get(User, workout_data.user_id) #находим user_id
+    result = post_workout(workout_data, db)
 
-    if user is None:
+    if result is None:
         raise HTTPException(status_code=404, detail="User not found")
 
-    workout = Workout(user_id=workout_data.user_id, title=workout_data.title, completed=workout_data.completed)
-
-    db.add(workout)
-    db.commit()
-    db.refresh(workout)
-
-    return workout
+    return result
 
 #читаем все тренировки
 @router.get("/workouts", response_model=list[WorkoutResponse])
 def read_workouts(db: Session = Depends(get_db)):
-    workouts = db.query(Workout).all()
-    return workouts
+    return get_workouts(db)
 
 #читаем 1 тренировку по id
 @router.get("/workouts/{workout_id}", response_model=WorkoutResponse)
 def read_workout(workout_id: int, db: Session = Depends(get_db)):
-    workout = db.query(Workout).filter(Workout.id == workout_id).first()
-    return workout
+    return get_workout(workout_id, db)
 
 #меняем данные тренировки
 @router.patch("/workouts/{workout_id}", response_model=WorkoutResponse)
 def update_workout(work_data: WorkoutCreate, workout_id: int, db: Session = Depends(get_db)):
-    workout = db.get(Workout, workout_id)
-
-    data = work_data.model_dump(exclude_unset=True)
-
-    if workout is None:
-        raise HTTPException(status_code=404, detail="Workout not found")
-
-    for field, values in data.items():
-        setattr(workout, field, values)
-
-    db.commit()
-    db.refresh(workout)
-
-    return workout
+    return patch_workout(work_data, workout_id, db)
 
 #удаляем тренировку
 @router.delete("/workouts/{workout_id}")
 def delete_workout(workout_id: int, db: Session = Depends(get_db)):
-    workout = db.query(Workout).filter(Workout.id == workout_id).first()
-
-    if workout is None:
-        raise HTTPException(status_code=404, detail="Workout not found")
-
-    db.delete(workout)
-    db.commit()
+    del_workout(workout_id, db)
