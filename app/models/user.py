@@ -16,6 +16,8 @@ class User(Base):
 
     name: Mapped[str]
 
+    password_hash: Mapped[str]
+
     # принимаем список тренировок у пользователя
     workouts: Mapped[list["Workout"]] = relationship(
         back_populates="user"
