@@ -6,4 +6,4 @@ def hash_password(password):
     return password_hash.hash(password)
 
 def verify_password(password, hashed_password):
-    return hashed_password.verify(password, hashed_password)
+    return password_hash.verify(password, hashed_password)

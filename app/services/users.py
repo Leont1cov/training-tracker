@@ -1,5 +1,5 @@
 from app.models import User
-from app.security import hash_password
+from app.security import hash_password, verify_password
 
 
 def post_users(user_data, db):
@@ -48,3 +48,12 @@ def del_user(id, db):
     db.delete(user)
     db.commit()
     return True
+
+def log_user(user_data, db):
+    user = db.query(User).filter(User.name == user_data.name).first()
+    if not user:
+        return None
+
+    if not verify_password(user_data.password, user.password_hash):
+        return None
+    return user

@@ -1,4 +1,4 @@
-from .user import UserCreate, UserResponse
+from .user import UserCreate, UserResponse, UserLogin
 from .workout import WorkoutCreate, WorkoutResponse
 from .exercise import ExerciseCreate, ExerciseResponse
 from .workout_exercise import WorkoutExerciseCreate, WorkoutExerciseResponse
@@ -6,6 +6,7 @@ from .workout_exercise import WorkoutExerciseCreate, WorkoutExerciseResponse
 __all__ = [
     "UserCreate",
     "UserResponse",
+    "UserLogin",
     "WorkoutCreate",
     "WorkoutResponse",
     "ExerciseCreate",
