@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas import UserResponse, UserCreate, UserLogin
+from app.schemas.token import Token
+from app.security import create_access_token
 from app.services.users import post_users, get_users, get_user_by_id, patch_user, del_user, log_user
 
 router = APIRouter()
@@ -41,9 +43,16 @@ def delete_user(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return result
 
-@router.post("/login", response_model=UserResponse)
+#вход пользователя
+@router.post("/login", response_model=Token)
 def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
     result = log_user(user_data, db)
     if result is None:
         raise HTTPException(status_code=401, detail="Invalid username or password")
-    return result
+    access_token = create_access_token({
+        "sub": str(result.id)
+    })
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
