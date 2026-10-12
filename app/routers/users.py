@@ -43,7 +43,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return result
 
-#вход пользователя
+#вход пользователя -> эндпоинт выдачи JWT-токена
 @router.post("/login", response_model=Token)
 def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
     result = log_user(user_data, db)
