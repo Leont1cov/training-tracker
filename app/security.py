@@ -26,4 +26,4 @@ def create_access_token(data: dict):
 #расшифровываем наш токен
 def decode_access_token(token: str):
     decoded_payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-    return decoded_payload["sub"]
+    return decoded_payload["sub"] #возвращаем нашего пользователя (кому принадлежит токен)
