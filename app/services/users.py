@@ -50,7 +50,7 @@ def del_user(id, db):
     return True
 
 def log_user(user_data, db):
-    user = db.query(User).filter(User.name == user_data.name).first()
+    user = db.query(User).filter(User.name == user_data.username).first()
     if not user:
         return None
 

@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.dependencies import get_current_user
+from app.models import User
 from app.schemas import UserResponse, UserCreate, UserLogin
 from app.schemas.token import Token
 from app.security import create_access_token
@@ -21,10 +24,11 @@ def read_users(db: Session = Depends(get_db)):
 
 #Получить конкретного пользователя
 @router.get("/users/{id}", response_model=UserResponse)
-def read_user(id: int, db: Session = Depends(get_db)):
+def read_user(id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if id != user.id: #проверка, чтобы пользователь мог получить только свой профиль
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     result = get_user_by_id(id, db)
-    if result is None:
-        raise HTTPException(status_code=404, detail="User not found")
     return result
 
 #Изменить пользователя
@@ -45,8 +49,8 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 #вход пользователя -> эндпоинт выдачи JWT-токена
 @router.post("/login", response_model=Token)
-def login_user(user_data: UserLogin, db: Session = Depends(get_db)):
-    result = log_user(user_data, db)
+def login_user(form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm), db: Session = Depends(get_db)):
+    result = log_user(form_data, db)
     if result is None:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     access_token = create_access_token({
