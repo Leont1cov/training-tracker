@@ -23,8 +23,8 @@ def post_workout_exercises(data_workout_exercises, db):
     db.refresh(workout_exercises)
     return workout_exercises
 
-def get_workout_exercises(db):
-    workout_exercises = db.query(WorkoutExercise).all()
+def get_workout_exercises(user_id, db):
+    workout_exercises = db.query(WorkoutExercise.workout_id).filter(WorkoutExercise.workout_id == user_id).all()
     return workout_exercises
 
 def get_workout_exercise(id, db):
